@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import React from 'react'
 
 function App() {
 
@@ -6,12 +7,26 @@ function App() {
   const [userInput, setUserInput] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
 
-  const isCorrect = null;
-  const isWrong = null;
+  const isCorrect = React.useRef(null);
+  const isWrong = React.useRef(null);
 
-  const handleInputChange = () => {
-    
+  const handleInputChange = (e) => {
+    setUserInput(e.target.value);
+    const currentInput = e.target.value;
+    if(sentence.includes(currentInput)){
+      isCorrect.current = true;
+      isWrong.current = false;
+    }else{
+      isCorrect.current = false;
+      isWrong.current = true;
+    }
   };
+
+  React.useEffect(()=>{
+    if(userInput === sentence){
+      setIsCompleted(true);
+    }
+  },[userInput])
 
   const resetApp = () => {
     setUserInput('');
@@ -73,11 +88,11 @@ function App() {
           </div>
         ) : userInput.length === 0 ? (
           <p className="text-gray-500 text-lg">Start typing to begin...</p>
-        ) : isCorrect ? (
+        ) : isCorrect.current ? (
           <div className="p-3 bg-green-100 border border-green-300 rounded-lg">
             <p className="text-xl font-semibold text-green-800">Correct</p>
           </div>
-        ) : isWrong ? (
+        ) : isWrong.current ? (
           <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
             <p className="text-xl font-semibold text-red-800">Wrong</p>
             <p className="text-red-600 text-sm mt-1">
@@ -107,6 +122,11 @@ function App() {
         <div className="text-center">
           <button
             onClick={resetApp}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                resetApp();
+              }
+            }}
             className="px-6 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
           >
             Reset
